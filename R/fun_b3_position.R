@@ -78,31 +78,57 @@ list(
   '/home/Cao/Storage/github/auto.tax/data/2023/transactions_2023.xlsx'
 ) -> list_transactions
 
+# b3 financial events files
+list(
+  '/home/Cao/Storage/github/auto.tax/data/2019/events_2019.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2020/events_2020.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2021/events_2021.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2022/events_2022.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2023/events_2023.xlsx'
+) -> list_events
+
+# # b3 financial position files
+# list(
+#   '/home/Cao/Storage/github/auto.tax/data/2020/position_2020.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2021/position_2021.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2022/position_2022.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2023/position_2023.xlsx'
+# ) -> list_position
+
 # - fun_b3_clean ----------------------------------------------------------
-list_transactions %>%
-  fun_b3_clean() ->
-  list_b3_data
+fun_b3_clean(
+  list_transactions,
+  list_events
+) -> list_b3_data
+
 # - fun_b3_position -------------------------------------------------------
+# transactions do not work for identifying daytrolha!
+# must use dealings files for daytrolha
 list_b3_data$
   transactions %>%
   group_by(
-    ticker,
-    cycle
+    ticker
+    # , cycle
   ) %>%
   mutate(
     position =
       cumsum(qtd)
-    , mean_price = if_else(
-      position != 0
-      , cumsum(qtd * price) /
-        cumsum(qtd)
-      , lag(mean_price)
+    , total = cumsum(
+      qtd * price
     )
+    # , mean_price =
+    #   cumsum(qtd * price) /
+    #   cumsum(qtd)
+    # , mean_price = if_else(
+    #   position != 0
+    #   , mean_price
+    #   , NA
+    # )
       # cumsum(position * price) /
       # cumsum(position)
-    , total =
-      mean_price *
-      position
+    # , total =
+    #   mean_price *
+    #   position
   ) %>%
   select(
     -type,
@@ -116,6 +142,18 @@ list_b3_data$
   )
 
 list_b3_data$
+  events$
+  events %>%
+  group_by(
+    event
+  ) %>%
+  tally()
+
+transactional events
+assets
+
+
+list_b3_data$
   transactions %>%
   filter(
     event == 'transferência'
@@ -123,3 +161,68 @@ list_b3_data$
   print(n = Inf)
 
 
+list_b3_data$
+  transactions %>%
+  filter(
+    ticker == 'GETT11'
+  )
+
+fun_b3_clean_dealings(
+  list_dealings
+) %>%
+  filter(
+    ticker == 'FHER3'
+    # ticker == 'GSHP3'
+    # ticker == 'BIDI4'
+    # ticker == 'WEGE3'
+  ) %>%
+  mutate(
+    position =
+      cumsum(qtd)
+    , total = cumsum(
+      qtd * price
+    )
+    # , mean_price =
+    #   cumsum(qtd * price) /
+    #   cumsum(qtd)
+    # , mean_price = if_else(
+    #   position != 0
+    #   , mean_price
+    #   , NA
+    # )
+    # cumsum(position * price) /
+    # cumsum(position)
+    # , total =
+    #   mean_price *
+    #   position
+  )
+
+list_b3_data$
+  transactions %>%
+  filter(
+    ticker == 'FHER3'
+  ) %>%
+  group_by(date) %>%
+  tally()
+
+list_b3_data$
+  events$
+  events %>%
+  filter(
+    ticker == 'FHER3'
+  ) %>%
+  group_by(date) %>%
+  tally()
+
+list_b3_data$
+  transactions %>%
+  filter(
+    ticker == 'GSHP3'
+  )
+
+list_b3_data$
+  events$
+  events %>%
+  filter(
+    ticker == 'GSHP3'
+  )

@@ -51,8 +51,30 @@ Map(
 
 # [FUNCTIONS] --------------------------------------------------------------
 # NOTE: TO CALCULATE TROLHA MEAN_PRICE IS REQUIRED! ------------------------
+# - Identify daytrolha function -------------------------------------------
+fun_b3_is_daytrolha <- function(df_transactions){
+
+  # arguments validated in main function
+
+  # daytrolha = buy and sell same asset on the same day
+  df_transactions %>%
+    group_by(
+      date,
+      ticker
+    ) %>%
+    mutate(
+      .after = stock
+      , daytrolha =
+        length(unique(type)) > 1
+    ) -> df_transactions
+
+  # output
+  return(df_transactions)
+
+}
+
 # - Calculate daytrolha function ---------------------------------------------------------
-fun_b3_daytrolha <- function(df_transactions){
+fun_b3_daytrolha <- function(df_transactions, df_position = NULL){
 
   # arguments validation
   stopifnot(
@@ -64,6 +86,11 @@ fun_b3_daytrolha <- function(df_transactions){
   )
 
   # identify daytrolha
+  df_transactions %>%
+    fun_b3_is_daytrolha() ->
+    df_transactions
+
+  # get mean prices
 
   # calculate trolha
 
@@ -71,12 +98,15 @@ fun_b3_daytrolha <- function(df_transactions){
 
   # aggregate trolha by year
 
+  # aggregate trolha by period
+
   # output
-  return(list(
-    'daytrolha' = list_daytrolha$transactions,
-    'daytrolha_month' = list_daytrolha$month,
-    'daytrolha_year' = list_daytrolha$year
-  ))
+  return(df_transactions)
+  # return(list(
+  #   'daytrolha' = list_daytrolha$transactions,
+  #   'daytrolha_month' = list_daytrolha$month,
+  #   'daytrolha_year' = list_daytrolha$year
+  # ))
 
 }
 
@@ -91,21 +121,37 @@ list(
   '/home/Cao/Storage/github/auto.tax/data/2023/transactions_2023.xlsx'
 ) -> list_transactions
 
+# b3 financial events files
+list(
+  '/home/Cao/Storage/github/auto.tax/data/2019/events_2019.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2020/events_2020.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2021/events_2021.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2022/events_2022.xlsx',
+  '/home/Cao/Storage/github/auto.tax/data/2023/events_2023.xlsx'
+) -> list_events
+
+# # b3 financial position files
+# list(
+#   '/home/Cao/Storage/github/auto.tax/data/2020/position_2020.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2021/position_2021.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2022/position_2022.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2023/position_2023.xlsx'
+# ) -> list_position
+
 # - fun_b3_clean ----------------------------------------------------------
-list_transactions %>%
-  fun_b3_clean() ->
-  list_b3_data
+fun_b3_clean(
+  list_transactions,
+  list_events
+) -> list_b3_data
 
 # - fun_b3_daytrolha ------------------------------------------------------
 list_b3_data$
   transactions %>%
-  filter(stock) %>%
-  group_by(
-    ticker,
-    date,
-    type,
-    event
+  fun_b3_daytrolha() ->
+  df_daytrolha
+
+df_daytrolha %>%
+  filter(
+    daytrolha
   ) %>%
-  tally() %>%
-  arrange(-n) %>%
-  print(n = 100)
+  print(n = Inf)
