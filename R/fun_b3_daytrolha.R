@@ -50,6 +50,7 @@ Map(
 )
 
 # [FUNCTIONS] --------------------------------------------------------------
+# NOTE: TO CALCULATE TROLHA MEAN_PRICE IS REQUIRED! ------------------------
 # - Calculate daytrolha function ---------------------------------------------------------
 fun_b3_daytrolha <- function(df_transactions){
 
