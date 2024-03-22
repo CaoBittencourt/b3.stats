@@ -50,13 +50,14 @@ fun_b3_dividends <- function(df_dividends){
 #   '/home/Cao/Storage/github/auto.tax/data/2022/transactions_2022.xlsx',
 #   '/home/Cao/Storage/github/auto.tax/data/2023/transactions_2023.xlsx'
 # ) -> list_transactions
-
+#
 # # - fun_b3_clean ----------------------------------------------------------
 # list_transactions %>%
 #   fun_b3_clean() ->
 #   list_b3_data
+#
 # # - fun_b3_dividends ------------------------------------------------------
-fun_b3_dividends(
-  list_b3_data$
-    dividends
-)
+# fun_b3_dividends(
+#   list_b3_data$
+#     dividends
+# )
