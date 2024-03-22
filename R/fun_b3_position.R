@@ -423,3 +423,4 @@ list_b3_data$
   ) %>%
   fun_b3_position()
 
+# now splits are wrong
