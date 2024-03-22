@@ -50,20 +50,158 @@ Map(
 )
 
 # [FUNCTIONS] --------------------------------------------------------------
+# # - Calculate position function -------------------------------------------
+# fun_b3_position <- function(df_transfers){
+#
+#   # arguments validated in main function
+#
+#   # aggregate position
+#   df_transfers %>%
+#     group_by(
+#       ticker
+#       , cycle
+#     ) %>%
+#     mutate(
+#       position =
+#         cumsum(qtd)
+#     ) %>%
+#     ungroup() ->
+#     df_transfers
+#
+#   # output
+#   return(df_transfers)
+#
+# }
+#
+# # - Calculate mean price function -----------------------------------------
+# fun_b3_mean_price <- function(df_position){
+#
+#   # arguments validated in main function
+#
+#   # calculate mean price
+#   df_position %>%
+#     group_by(
+#       ticker,
+#       cycle
+#     ) %>%
+#     mutate(
+#       mean_price = if_else(
+#         position != 0
+#         , cumsum(qtd * price) /
+#           position
+#         , NA
+#       )
+#     ) %>%
+#     ungroup() ->
+#     df_position
+#
+#   # output
+#   return(df_position)
+#
+# }
+
 # - Calculate position and mean price function ---------------------------------------------------------
-fun_b3_position <- function(df_transactions){
+fun_b3_position <- function(df_transfers){
 
   # arguments validation
   stopifnot(
-    "'df_transactions' must be a data frame with the 'df_transactions' subclass." =
+    "'df_transfers' must be a data frame with the 'df_transfers' subclass." =
       all(
-        is.data.frame(df_transactions)
-        , any(class(df_transactions) == 'df_transactions')
+        is.data.frame(df_transfers)
+        , any(class(df_transfers) == 'df_transfers')
       )
   )
 
+  # position
+  df_transfers %>%
+    group_by(
+      ticker,
+      cycle
+    ) %>%
+    mutate(
+      position =
+        cumsum(qtd)
+    ) %>%
+    ungroup() ->
+    df_position
+
+  rm(df_transfers)
+
+  # value
+  df_position %>%
+    mutate(
+      value =
+        qtd * price
+    ) -> df_position
+
+  # total
+  df_position %>%
+    group_by(
+      ticker,
+      cycle
+    ) %>%
+    mutate(
+      total =
+        cumsum(value)
+    ) %>%
+    ungroup() ->
+    df_position
+
+  # mean price
+  df_position %>%
+    group_by(
+      ticker,
+      cycle
+    ) %>%
+    mutate(
+      mean_price =
+        if_else(
+          position != 0
+          , total /
+            position
+          , NA
+        )
+    ) %>%
+    ungroup() ->
+    df_position
+
+  # # mean price
+  # df_position %>%
+  #   group_by(
+  #     ticker,
+  #     cycle
+  #   ) %>%
+  #   mutate(
+  #     mean_price =
+  #       if_else(
+  #         position != 0
+  #         , cumsum(qtd * price) /
+  #           cumsum(qtd)
+  #         , 0
+  #       )
+  #   ) %>%
+  #   ungroup() ->
+  #   df_position
+
+  # # value
+  # df_position %>%
+  #   mutate(
+  #     value =
+  #       position *
+  #       mean_price
+  #   ) -> df_position
+
+  # add subclass
+  new_data_frame(
+    df_position
+    , class = c(
+      class(df_position)
+      , 'df_position'
+    )
+  ) -> df_position
+
   # output
-  return()
+  return(df_position)
 
 }
 
@@ -124,8 +262,8 @@ list_b3_data$
     #   , mean_price
     #   , NA
     # )
-      # cumsum(position * price) /
-      # cumsum(position)
+    # cumsum(position * price) /
+    # cumsum(position)
     # , total =
     #   mean_price *
     #   position
@@ -226,3 +364,36 @@ list_b3_data$
   filter(
     ticker == 'GSHP3'
   )
+
+list_b3_data$
+  events %>%
+  lapply(
+    function(df){
+      df %>%
+        filter(
+          # ticker == 'BIDI4'
+          str_detect(
+            ticker,
+            'INB'
+          )
+        )
+    }
+  )
+
+list_b3_data$
+  events$
+  transfers %>%
+  filter(
+    ticker == 'WEGE3'
+    # ticker == 'BIDI4'
+    # ticker == 'INBR32'
+    # ticker == 'INBR31'
+    # ticker == 'GSHP3'
+    # ticker == 'FHER3'
+    # str_detect(
+    #   ticker,
+    #   'Tesouro'
+    # )
+  ) %>%
+  fun_b3_position()
+
