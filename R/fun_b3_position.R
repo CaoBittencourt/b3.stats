@@ -112,6 +112,7 @@ fun_b3_position <- function(df_transfers){
       )
   )
 
+
   # position
   df_transfers %>%
     group_by(
@@ -127,26 +128,6 @@ fun_b3_position <- function(df_transfers){
 
   rm(df_transfers)
 
-  # value
-  df_position %>%
-    mutate(
-      value =
-        qtd * price
-    ) -> df_position
-
-  # total
-  df_position %>%
-    group_by(
-      ticker,
-      cycle
-    ) %>%
-    mutate(
-      total =
-        cumsum(value)
-    ) %>%
-    ungroup() ->
-    df_position
-
   # mean price
   df_position %>%
     group_by(
@@ -155,16 +136,41 @@ fun_b3_position <- function(df_transfers){
     ) %>%
     mutate(
       mean_price =
-        if_else(
-          position != 0
-          , total /
-            position
-          , NA
-        )
+        cumsum(qtd * price * (qtd > 0)) /
+        cumsum(qtd * (qtd > 0))
+      # position
     ) %>%
     ungroup() ->
     df_position
 
+  df_position %>%
+    mutate(
+      total =
+        position *
+        mean_price
+    ) -> df_position
+
+
+  # # value
+  # df_position %>%
+  #   mutate(
+  #     value =
+  #       qtd * price
+  #   ) -> df_position
+  #
+  # # total
+  # df_position %>%
+  #   group_by(
+  #     ticker,
+  #     cycle
+  #   ) %>%
+  #   mutate(
+  #     total =
+  #       cumsum(value)
+  #   ) %>%
+  #   ungroup() ->
+  #   df_position
+  #
   # # mean price
   # df_position %>%
   #   group_by(
@@ -173,23 +179,43 @@ fun_b3_position <- function(df_transfers){
   #   ) %>%
   #   mutate(
   #     mean_price =
-  #       if_else(
-  #         position != 0
-  #         , cumsum(qtd * price) /
-  #           cumsum(qtd)
-  #         , 0
-  #       )
+  #       total /
+  #       position
+  #       # if_else(
+  #       #   position != 0
+  #       #   , total /
+  #       #     position
+  #       #   , NA
+  #       # )
   #   ) %>%
   #   ungroup() ->
   #   df_position
-
-  # # value
-  # df_position %>%
-  #   mutate(
-  #     value =
-  #       position *
-  #       mean_price
-  #   ) -> df_position
+  #
+  # # # mean price
+  # # df_position %>%
+  # #   group_by(
+  # #     ticker,
+  # #     cycle
+  # #   ) %>%
+  # #   mutate(
+  # #     mean_price =
+  # #       if_else(
+  # #         position != 0
+  # #         , cumsum(qtd * price) /
+  # #           cumsum(qtd)
+  # #         , 0
+  # #       )
+  # #   ) %>%
+  # #   ungroup() ->
+  # #   df_position
+  #
+  # # # value
+  # # df_position %>%
+  # #   mutate(
+  # #     value =
+  # #       position *
+  # #       mean_price
+  # #   ) -> df_position
 
   # add subclass
   new_data_frame(
