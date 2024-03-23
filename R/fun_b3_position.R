@@ -128,6 +128,28 @@ fun_b3_position <- function(df_transfers){
 
   rm(df_transfers)
 
+  # new cycle whenever position = 0
+  df_position %>%
+    group_by(
+      ticker
+    ) %>%
+    mutate(
+      cycle =
+        cycle +
+        # cumsum(position == 0)
+
+        # cumsum(position == 0) *
+        # (position == 0)
+
+        lag(
+          cumsum(position == 0)
+          , default = 0
+        )
+
+    ) %>%
+    ungroup() ->
+    df_position
+
   # mean price
   df_position %>%
     group_by(
@@ -138,7 +160,24 @@ fun_b3_position <- function(df_transfers){
       mean_price =
         cumsum(qtd * price * (qtd > 0)) /
         cumsum(qtd * (qtd > 0))
+      # if_else(
+      #   price != 0
+      #   , cumsum(qtd * price * (qtd > 0)) /
+      #     cumsum(qtd * (qtd > 0))
+      #   , (cumsum(qtd * price * (qtd > 0)) +
+      #        cumsum(qtd * (qtd < 0)) *
+      #        cumsum(qtd * price * (qtd > 0)) /
+      #        cumsum(qtd * (qtd > 0))) / position
+      # )
+
+      # cumsum(qtd * price * (qtd > 0)) /
       # position
+      # , mean_price =
+      #   if_else(
+      #     !is.na(mean_price)
+      #     , mean_price
+      #     , 0
+      #   )
     ) %>%
     ungroup() ->
     df_position
@@ -410,17 +449,18 @@ list_b3_data$
   events$
   transfers %>%
   filter(
-    ticker == 'WEGE3'
+    # ticker == 'WEGE3'
     # ticker == 'BIDI4'
     # ticker == 'INBR32'
     # ticker == 'INBR31'
     # ticker == 'GSHP3'
-    # ticker == 'FHER3'
+    ticker == 'FHER3'
     # str_detect(
     #   ticker,
     #   'Tesouro'
     # )
   ) %>%
-  fun_b3_position()
+  fun_b3_position() %>%
+  print(n = Inf)
 
 # now splits are wrong
