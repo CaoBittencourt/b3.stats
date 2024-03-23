@@ -50,57 +50,7 @@ Map(
 )
 
 # [FUNCTIONS] --------------------------------------------------------------
-# # - Calculate position function -------------------------------------------
-# fun_b3_position <- function(df_transfers){
-#
-#   # arguments validated in main function
-#
-#   # aggregate position
-#   df_transfers %>%
-#     group_by(
-#       ticker
-#       , cycle
-#     ) %>%
-#     mutate(
-#       position =
-#         cumsum(qtd)
-#     ) %>%
-#     ungroup() ->
-#     df_transfers
-#
-#   # output
-#   return(df_transfers)
-#
-# }
-#
-# # - Calculate mean price function -----------------------------------------
-# fun_b3_mean_price <- function(df_position){
-#
-#   # arguments validated in main function
-#
-#   # calculate mean price
-#   df_position %>%
-#     group_by(
-#       ticker,
-#       cycle
-#     ) %>%
-#     mutate(
-#       mean_price = if_else(
-#         position != 0
-#         , cumsum(qtd * price) /
-#           position
-#         , NA
-#       )
-#     ) %>%
-#     ungroup() ->
-#     df_position
-#
-#   # output
-#   return(df_position)
-#
-# }
-
-# - Calculate position and mean price function ---------------------------------------------------------
+# - Position function ---------------------------------------------------------
 fun_b3_position <- function(df_transfers){
 
   # arguments validation
@@ -111,7 +61,6 @@ fun_b3_position <- function(df_transfers){
         , any(class(df_transfers) == 'df_transfers')
       )
   )
-
 
   # position
   df_transfers %>%
@@ -136,16 +85,10 @@ fun_b3_position <- function(df_transfers){
     mutate(
       cycle =
         cycle +
-        # cumsum(position == 0)
-
-        # cumsum(position == 0) *
-        # (position == 0)
-
         lag(
           cumsum(position == 0)
           , default = 0
         )
-
     ) %>%
     ungroup() ->
     df_position
@@ -158,6 +101,7 @@ fun_b3_position <- function(df_transfers){
     ) %>%
     mutate(
       mean_price =
+        # acquisition cost / qtd bought
         cumsum(qtd * price * (qtd > 0)) /
         cumsum(qtd * (qtd > 0))
       # if_else(
@@ -307,160 +251,60 @@ fun_b3_clean(
 # - fun_b3_position -------------------------------------------------------
 # transactions do not work for identifying daytrolha!
 # must use dealings files for daytrolha
-list_b3_data$
-  transactions %>%
-  group_by(
-    ticker
-    # , cycle
-  ) %>%
-  mutate(
-    position =
-      cumsum(qtd)
-    , total = cumsum(
-      qtd * price
-    )
-    # , mean_price =
-    #   cumsum(qtd * price) /
-    #   cumsum(qtd)
-    # , mean_price = if_else(
-    #   position != 0
-    #   , mean_price
-    #   , NA
-    # )
-    # cumsum(position * price) /
-    # cumsum(position)
-    # , total =
-    #   mean_price *
-    #   position
-  ) %>%
-  select(
-    -type,
-    -stock
-  ) %>%
-  filter(
-    ticker == 'FHER3'
-    # ticker == 'GSHP3'
-    # ticker == 'BIDI4'
-    # ticker == 'WEGE3'
-  )
+# now splits are wrong
+# remove single 'atualização' events? (single == with no follow-up events)
+# list_b3_data$
+#   transactions %>%
+#   filter(
+#     ticker == 'GETT11'
+#   )
+# list_b3_data$
+#   transactions %>%
+#   filter(
+#     ticker == 'BIDI4'
+#     ticker == 'INBR31'
+#     ticker == 'INBR32'
+#   )
 
 list_b3_data$
   events$
-  events %>%
-  group_by(
-    event
-  ) %>%
-  tally()
-
-transactional events
-assets
-
-
-list_b3_data$
-  transactions %>%
-  filter(
-    event == 'transferência'
-  ) %>%
-  print(n = Inf)
-
-
-list_b3_data$
-  transactions %>%
-  filter(
-    ticker == 'GETT11'
-  )
-
-fun_b3_clean_dealings(
-  list_dealings
-) %>%
-  filter(
-    ticker == 'FHER3'
-    # ticker == 'GSHP3'
-    # ticker == 'BIDI4'
-    # ticker == 'WEGE3'
-  ) %>%
-  mutate(
-    position =
-      cumsum(qtd)
-    , total = cumsum(
-      qtd * price
-    )
-    # , mean_price =
-    #   cumsum(qtd * price) /
-    #   cumsum(qtd)
-    # , mean_price = if_else(
-    #   position != 0
-    #   , mean_price
-    #   , NA
-    # )
-    # cumsum(position * price) /
-    # cumsum(position)
-    # , total =
-    #   mean_price *
-    #   position
-  )
-
-list_b3_data$
-  transactions %>%
-  filter(
-    ticker == 'FHER3'
-  ) %>%
-  group_by(date) %>%
-  tally()
-
-list_b3_data$
-  events$
-  events %>%
-  filter(
-    ticker == 'FHER3'
-  ) %>%
-  group_by(date) %>%
-  tally()
-
-list_b3_data$
-  transactions %>%
-  filter(
-    ticker == 'GSHP3'
-  )
-
-list_b3_data$
-  events$
-  events %>%
-  filter(
-    ticker == 'GSHP3'
-  )
-
-list_b3_data$
-  events %>%
-  lapply(
-    function(df){
-      df %>%
-        filter(
-          # ticker == 'BIDI4'
-          str_detect(
-            ticker,
-            'INB'
-          )
-        )
-    }
-  )
+  transfers$
+  ticker %>%
+  unique()
 
 list_b3_data$
   events$
   transfers %>%
-  filter(
-    # ticker == 'WEGE3'
-    # ticker == 'BIDI4'
-    # ticker == 'INBR32'
-    # ticker == 'INBR31'
-    # ticker == 'GSHP3'
-    ticker == 'FHER3'
-    # str_detect(
-    #   ticker,
-    #   'Tesouro'
-    # )
-  ) %>%
   fun_b3_position() %>%
+  filter(
+    # ticker == 'TIET4' #working
+    # ticker == 'AESB1' #working
+    # ticker == 'AESB3' #working
+    # ticker == 'TAEE11' #working
+    # ticker == 'TAEE3' #working
+    # ticker == 'WEGE3' #split not working (split after selling)
+    # ticker == 'MGLU3' #'atualização' event bug (position should be 0) + split not working (see WEGE3; splits after sell don't work)
+    # ticker == 'SAPR3' #working
+    # ticker == 'SAPR4' #working
+    # ticker == 'BOVA11' #'atualização' event bug (position should be 0)
+    # ticker == 'GOLL4' #working
+    # ticker == 'AZUL4' #working
+    # ticker == 'INHF12' #'incorporação' event bug
+    # ticker == 'SOMA3' #'incorporação' price should not be 0
+    # ticker == 'HGTX3' #bug (position should be 0)
+    # ticker == 'SLCE3' #working
+    # ticker == 'TESA3' #this stock was converted into LAND3 (1:3) and position should be 0
+    # ticker == 'LAND3' #working
+    # ticker == 'EQTL1' #working
+    # ticker == 'EQTL3' #working
+    # ticker == 'EGIE3' #working
+    # ticker == 'PRIO3' #split not working (split after selling) 'atualização' event bug ('atualização' should not be counted as additional stocks, 'atualização' == lag(position))
+    # ticker == 'BIDI4' #workings
+    # ticker == 'GSHP3' #grouping mean price to be implemented
+    # ticker == 'FHER3' #working
+    # ticker == 'INBR31' #edge case
+    # ticker == 'INBR32' #working
+    # ticker == 'GETT11' #working
+    # ticker == 'SANB11' #edge case
+  ) %>%
   print(n = Inf)
-
-# now splits are wrong
