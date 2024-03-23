@@ -2,51 +2,51 @@
 # - Packages (temp) ----------------------------------------------------------------
 # CRAN packages
 chr_pkg <- c(
-  'devtools' #GitHub packages (temp)
-  , 'dplyr', 'tidyr' #Data wrangling
-  , 'vctrs' #Data frame subclasses
+'devtools' #GitHub packages (temp)
+, 'dplyr', 'tidyr' #Data wrangling
+, 'vctrs' #Data frame subclasses
 )
 
 # Git packages
 chr_git <- c(
-  'CaoBittencourt' = 'b3.data' #Tidy financial transactions (temp)
+'CaoBittencourt' = 'b3.data' #Tidy financial transactions (temp)
 )
 
 # Activate / install CRAN packages
 lapply(
-  chr_pkg
-  , function(pkg){
+chr_pkg
+, function(pkg){
 
-    if(!require(pkg, character.only = T)){
+  if(!require(pkg, character.only = T)){
 
-      install.packages(pkg)
-
-    }
-
-    require(pkg, character.only = T)
+    install.packages(pkg)
 
   }
+
+  require(pkg, character.only = T)
+
+}
 )
 
 # Activate / install Git packages
 Map(
-  function(git, profile){
+function(git, profile){
 
-    if(!require(git, character.only = T)){
+  if(!require(git, character.only = T)){
 
-      install_github(
-        paste0(profile, '/', git)
-        , upgrade = F
-        , force = T
-      )
-
-    }
-
-    require(git, character.only = T)
+    install_github(
+      paste0(profile, '/', git)
+      , upgrade = F
+      , force = T
+    )
 
   }
-  , git = chr_git
-  , profile = names(chr_git)
+
+  require(git, character.only = T)
+
+}
+, git = chr_git
+, profile = names(chr_git)
 )
 
 # [FUNCTIONS] --------------------------------------------------------------
@@ -299,7 +299,7 @@ list_b3_data$
     # ticker == 'EQTL3' #working
     # ticker == 'EGIE3' #working
     # ticker == 'PRIO3' #split not working (split after selling) 'atualização' event bug ('atualização' should not be counted as additional stocks, 'atualização' == lag(position))
-    # ticker == 'BIDI4' #workings
+    # ticker == 'BIDI4' #split working but positions should be 0
     # ticker == 'GSHP3' #grouping mean price to be implemented
     # ticker == 'FHER3' #working
     # ticker == 'INBR31' #edge case
