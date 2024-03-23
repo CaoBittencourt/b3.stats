@@ -214,6 +214,84 @@ Map(
 #
 # }
 
+# # - Mean price function ---------------------------------------------------
+# fun_b3_mean_price <- function(
+    #     dbl_qtd
+#     , dbl_price
+#     , dbl_position =
+#       cumsum(dbl_qtd)
+# ){
+#
+#   # arguments validation
+#   stopifnot(
+#     "'dbl_qtd', 'dbl_price', and 'dbl_position' must all be numeric vectors of the same length." =
+#       all(
+#         is.numeric(dbl_qtd),
+#         is.numeric(dbl_price),
+#         is.numeric(dbl_position),
+#         length(dbl_qtd) == length(dbl_price),
+#         length(dbl_price) == length(dbl_position)
+#       )
+#   )
+#
+#   # initialize mean price
+#   dbl_price[1] -> dbl_mean_price
+#
+#   # calculate mean price
+#   for(t in 2:length(dbl_qtd)){
+#
+#     # buy
+#     if(all(
+#       dbl_price[t] > 0,
+#       dbl_qtd[t] > 0
+#     )){
+#
+#       # mean cost of acquisition
+#       weighted.mean(
+#         x = c(
+#           dbl_mean_price[t - 1]
+#           , dbl_price[t]
+#         )
+#         , w = c(
+#           dbl_position[t - 1]
+#           , dbl_qtd[t]
+#         )
+#       ) -> dbl_mean_price[t]
+#
+#     }
+#
+#     # sell
+#     if(all(
+#       dbl_price[t] > 0,
+#       dbl_qtd[t] < 0
+#     )){
+#
+#       # selling does not alter mean price
+#       dbl_mean_price[t - 1] ->
+#         dbl_mean_price[t]
+#
+#     }
+#
+#     # split / grouping / event
+#     if(all(
+#       dbl_price[t] == 0,
+#       dbl_qtd[t] > 0
+#     )){
+#
+#       # mean price adjusted by proportion
+#       (dbl_qtd[t] / dbl_position[t]) *
+#         dbl_mean_price[t - 1] ->
+#         dbl_mean_price[t]
+#
+#     }
+#
+#   }
+#
+#   # output
+#   return(dbl_mean_price)
+#
+# }
+
 # - Mean price function ---------------------------------------------------
 fun_b3_mean_price <- function(
     dbl_qtd
@@ -242,7 +320,7 @@ fun_b3_mean_price <- function(
 
     # buy
     if(all(
-      dbl_price[t] > 0,
+      dbl_price[t] >= 0,
       dbl_qtd[t] > 0
     )){
 
@@ -275,12 +353,14 @@ fun_b3_mean_price <- function(
     # split / grouping / event
     if(all(
       dbl_price[t] == 0,
-      dbl_qtd[t] > 0
+      dbl_qtd[t] > 0,
+      dbl_qtd[t - 1] < 0
     )){
 
       # mean price adjusted by proportion
-      (dbl_qtd[t] / dbl_position[t]) *
-        dbl_mean_price[t - 1] ->
+      dbl_mean_price[t - 1] *
+        dbl_position[t - 1] /
+        dbl_position[t] ->
         dbl_mean_price[t]
 
     }
@@ -577,7 +657,7 @@ list_b3_data$
     # ticker == 'AESB3' #working
     # ticker == 'TAEE11' #working
     # ticker == 'TAEE3' #working
-    ticker == 'WEGE3' #split not working (split after selling)
+    # ticker == 'WEGE3' #split not working (split after selling)
     # ticker == 'MGLU3' #'atualização' event bug (position should be 0) + split not working (see WEGE3; splits after sell don't work)
     # ticker == 'SAPR3' #working
     # ticker == 'SAPR4' #working
@@ -594,7 +674,7 @@ list_b3_data$
     # ticker == 'EQTL3' #working
     # ticker == 'EGIE3' #working
     # ticker == 'PRIO3' #split not working (split after selling) 'atualização' event bug ('atualização' should not be counted as additional stocks, 'atualização' == lag(position))
-    # ticker == 'BIDI4' #split working but positions should be 0
+    ticker == 'BIDI4' #split working but positions should be 0
     # ticker == 'GSHP3' #grouping mean price to be implemented
     # ticker == 'FHER3' #working
     # ticker == 'INBR31' #edge case
