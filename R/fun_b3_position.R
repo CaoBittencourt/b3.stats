@@ -143,7 +143,51 @@ fun_b3_position <- function(df_transfers){
     ungroup() ->
     df_position
 
-  # add subclass
+  # daily position
+  df_position %>%
+    select(
+      date,
+      ticker,
+      stock,
+      position,
+      mean_price,
+      value
+    ) %>%
+    group_by(
+      ticker
+    ) %>%
+    mutate(
+      .after = 1
+      , reps =
+        as.numeric(
+          difftime(
+            lead(date),
+            date
+          )
+        )
+      , reps =
+        if_else(
+          !is.na(reps)
+          , reps
+          , 0
+        )
+    ) %>%
+    group_by(
+      ticker,
+      date
+    ) %>%
+    slice(
+      rep(
+        1, first(reps)
+      )
+    ) %>%
+    select(
+      -reps
+    ) %>%
+    ungroup() ->
+    df_position_day
+
+  # add subclasses
   new_data_frame(
     df_position
     , class = c(
@@ -152,8 +196,18 @@ fun_b3_position <- function(df_transfers){
     )
   ) -> df_position
 
+  new_data_frame(
+    df_position_day
+    , class = c(
+      class(df_position_day)
+      , 'df_position_day'
+    )
+  ) -> df_position_day
+
   # output
-  return(df_position)
+  return(list(
+    'position' = df_position,
+    'position_day' = df_position_day
+  ))
 
 }
-
