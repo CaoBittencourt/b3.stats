@@ -97,19 +97,19 @@ fun_b3_mean_price <- function(
 }
 
 # - Position function ---------------------------------------------------------
-fun_b3_position <- function(df_transfers){
+fun_b3_position <- function(df_events_transfers){
 
   # arguments validation
   stopifnot(
-    "'df_transfers' must be a data frame with the 'df_transfers' subclass." =
+    "'df_events_transfers' must be a data frame with the 'df_events_transfers' subclass." =
       all(
-        is.data.frame(df_transfers)
-        , any(class(df_transfers) == 'df_transfers')
+        is.data.frame(df_events_transfers)
+        , any(class(df_events_transfers) == 'df_events_transfers')
       )
   )
 
   # position
-  df_transfers %>%
+  df_events_transfers %>%
     group_by(
       ticker,
       cycle
@@ -121,7 +121,7 @@ fun_b3_position <- function(df_transfers){
     ungroup() ->
     df_position
 
-  rm(df_transfers)
+  rm(df_events_transfers)
 
   # mean price and value
   df_position %>%
