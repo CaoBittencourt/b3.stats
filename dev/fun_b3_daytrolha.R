@@ -1,56 +1,3 @@
-# [SETUP] -----------------------------------------------------------------
-# - Packages (temp) ----------------------------------------------------------------
-# CRAN packages
-chr_pkg <- c(
-  'devtools' #GitHub packages (temp)
-  , 'dplyr', 'tidyr' #Data wrangling
-  , 'vctrs' #Data frame subclasses
-)
-
-# Git packages
-chr_git <- c(
-  'CaoBittencourt' = 'b3.data', #Tidy financial transactions (temp)
-  'CaoBittencourt' = 'b3.stats' #Tidy financial statistics (temp)
-
-)
-
-# Activate / install CRAN packages
-lapply(
-  chr_pkg
-  , function(pkg){
-
-    if(!require(pkg, character.only = T)){
-
-      install.packages(pkg)
-
-    }
-
-    require(pkg, character.only = T)
-
-  }
-)
-
-# Activate / install Git packages
-Map(
-  function(git, profile){
-
-    if(!require(git, character.only = T)){
-
-      install_github(
-        paste0(profile, '/', git)
-        , upgrade = F
-        , force = T
-      )
-
-    }
-
-    require(git, character.only = T)
-
-  }
-  , git = chr_git
-  , profile = names(chr_git)
-)
-
 # [FUNCTIONS] --------------------------------------------------------------
 # NOTE: TO CALCULATE TROLHA MEAN_PRICE IS REQUIRED! ------------------------
 # - Identify daytrolha function -------------------------------------------
@@ -76,7 +23,7 @@ fun_b3_is_daytrolha <- function(df_transactions){
 }
 
 # - Calculate daytrolha function ---------------------------------------------------------
-fun_b3_daytrolha <- function(df_transactions, df_position = NULL){
+fun_b3_daytrolha <- function(df_transactions, df_position){
 
   # arguments validation
   stopifnot(
@@ -87,12 +34,25 @@ fun_b3_daytrolha <- function(df_transactions, df_position = NULL){
       )
   )
 
+  stopifnot(
+    "'df_position' must be a data frame with the 'df_position' subclass." =
+      all(
+        is.data.frame(df_position)
+        , any(class(df_position) == 'df_position')
+      )
+  )
+
   # identify daytrolha
   df_transactions %>%
     fun_b3_is_daytrolha() ->
     df_transactions
 
   # get mean prices
+  df_position %>%
+    select(
+
+    )
+
 
   # calculate trolha
 
@@ -111,49 +71,3 @@ fun_b3_daytrolha <- function(df_transactions, df_position = NULL){
   # ))
 
 }
-
-# [TEST] ------------------------------------------------------------------
-# - Test data -------------------------------------------------------------
-# b3 financial transactions files
-list(
-  '/home/Cao/Storage/github/auto.tax/data/2019/transactions_2019.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2020/transactions_2020.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2021/transactions_2021.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2022/transactions_2022.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2023/transactions_2023.xlsx'
-) -> list_transactions
-
-# b3 financial events files
-list(
-  '/home/Cao/Storage/github/auto.tax/data/2019/events_2019.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2020/events_2020.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2021/events_2021.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2022/events_2022.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2023/events_2023.xlsx'
-) -> list_events
-
-# # b3 financial position files
-# list(
-#   '/home/Cao/Storage/github/auto.tax/data/2020/position_2020.xlsx',
-#   '/home/Cao/Storage/github/auto.tax/data/2021/position_2021.xlsx',
-#   '/home/Cao/Storage/github/auto.tax/data/2022/position_2022.xlsx',
-#   '/home/Cao/Storage/github/auto.tax/data/2023/position_2023.xlsx'
-# ) -> list_position
-
-# - fun_b3_clean ----------------------------------------------------------
-fun_b3_clean(
-  list_transactions,
-  list_events
-) -> list_b3_data
-
-# - fun_b3_daytrolha ------------------------------------------------------
-list_b3_data$
-  transactions %>%
-  fun_b3_daytrolha() ->
-  df_daytrolha
-
-df_daytrolha %>%
-  filter(
-    daytrolha
-  ) %>%
-  print(n = Inf)
