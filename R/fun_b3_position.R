@@ -1,54 +1,3 @@
-# [SETUP] -----------------------------------------------------------------
-# - Packages (temp) ----------------------------------------------------------------
-# CRAN packages
-chr_pkg <- c(
-  'devtools' #GitHub packages (temp)
-  , 'dplyr', 'tidyr' #Data wrangling
-  , 'vctrs' #Data frame subclasses
-)
-
-# Git packages
-chr_git <- c(
-  'CaoBittencourt' = 'b3.data' #Tidy financial transactions (temp)
-)
-
-# Activate / install CRAN packages
-lapply(
-  chr_pkg
-  , function(pkg){
-
-    if(!require(pkg, character.only = T)){
-
-      install.packages(pkg)
-
-    }
-
-    require(pkg, character.only = T)
-
-  }
-)
-
-# Activate / install Git packages
-Map(
-  function(git, profile){
-
-    if(!require(git, character.only = T)){
-
-      install_github(
-        paste0(profile, '/', git)
-        , upgrade = F
-        , force = T
-      )
-
-    }
-
-    require(git, character.only = T)
-
-  }
-  , git = chr_git
-  , profile = names(chr_git)
-)
-
 # [FUNCTIONS] --------------------------------------------------------------
 # - Mean price function ---------------------------------------------------
 fun_b3_mean_price <- function(
@@ -208,84 +157,84 @@ fun_b3_position <- function(df_transfers){
 
 }
 
-# [TEST] ------------------------------------------------------------------
-# - Test data -------------------------------------------------------------
-# b3 financial transactions files
-list(
-  '/home/Cao/Storage/github/auto.tax/data/2019/transactions_2019.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2020/transactions_2020.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2021/transactions_2021.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2022/transactions_2022.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2023/transactions_2023.xlsx'
-) -> list_transactions
-
-# b3 financial events files
-list(
-  '/home/Cao/Storage/github/auto.tax/data/2019/events_2019.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2020/events_2020.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2021/events_2021.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2022/events_2022.xlsx',
-  '/home/Cao/Storage/github/auto.tax/data/2023/events_2023.xlsx'
-) -> list_events
-
-# events to remove
-list() -> list_events_remove
-
-# events to add
-list() -> list_events_add
-
-# - fun_b3_clean ----------------------------------------------------------
-fun_b3_clean(
-  list_chr_path_transactions = list_transactions,
-  list_chr_path_events = list_events,
-  list_chr_path_events_remove =  list_events_remove,
-  list_chr_path_events_add = list_events_add
-) -> list_b3_data
-
-# - fun_b3_position -------------------------------------------------------
-list_b3_data$
-  events$
-  transfers %>%
-  fun_b3_position() ->
-  df_position
-
-# - edge cases -------------------------------------------------------
-# transactions do not work for identifying daytrolha!
-# must use dealings files for daytrolha
-# remove single 'atualização' events? (single == with no follow-up events)
+# # [TEST] ------------------------------------------------------------------
+# # - Test data -------------------------------------------------------------
+# # b3 financial transactions files
+# list(
+#   '/home/Cao/Storage/github/auto.tax/data/2019/transactions_2019.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2020/transactions_2020.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2021/transactions_2021.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2022/transactions_2022.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2023/transactions_2023.xlsx'
+# ) -> list_transactions
+#
+# # b3 financial events files
+# list(
+#   '/home/Cao/Storage/github/auto.tax/data/2019/events_2019.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2020/events_2020.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2021/events_2021.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2022/events_2022.xlsx',
+#   '/home/Cao/Storage/github/auto.tax/data/2023/events_2023.xlsx'
+# ) -> list_events
+#
+# # events to remove
+# list() -> list_events_remove
+#
+# # events to add
+# list() -> list_events_add
+#
+# # - fun_b3_clean ----------------------------------------------------------
+# fun_b3_clean(
+#   list_chr_path_transactions = list_transactions,
+#   list_chr_path_events = list_events,
+#   list_chr_path_events_remove =  list_events_remove,
+#   list_chr_path_events_add = list_events_add
+# ) -> list_b3_data
+#
+# # - fun_b3_position -------------------------------------------------------
 # list_b3_data$
-#   transactions %>%
-#   filter(
-#     ticker == 'BIDI4'
-#     ticker == 'INFH12'
-#     ticker == 'INBR31'
-#     ticker == 'INBR32'
-#   )
-# ticker == 'TIET4' #working
-# ticker == 'AESB1' #working
-# ticker == 'AESB3' #working
-# ticker == 'TAEE11' #working
-# ticker == 'TAEE3' #working
-# ticker == 'WEGE3' #working
-# ticker == 'MGLU3' #'atualização' event bug (position should be 0)
-# ticker == 'SAPR3' #working
-# ticker == 'SAPR4' #working
-# ticker == 'BOVA11' #'atualização' event bug (position should be 0)
-# ticker == 'GOLL4' #working
-# ticker == 'AZUL4' #working
-# ticker == 'INHF12' #'incorporação' event bug
-# ticker == 'SOMA3' #'incorporação' price should not be 0
-# ticker == 'HGTX3' #'incorporação' bug (position should be 0)
-# ticker == 'SLCE3' #working
-# ticker == 'TESA3' #this stock was converted into LAND3 (1:3) and position should be 0
-# ticker == 'LAND3' #working
-# ticker == 'EQTL1' #working
-# ticker == 'EQTL3' #working
-# ticker == 'EGIE3' #working
-# ticker == 'PRIO3' #'atualização' event bug ('atualização' should not be counted as additional stocks, 'atualização' == lag(position))
-# ticker == 'BIDI4' #split working but positions should be 0
-# ticker == 'GSHP3' #working
-# ticker == 'FHER3' #working
-# ticker == 'INBR31' #edge case
-# ticker == 'INBR32' #working
-# ticker == 'SANB11' #edge case 'cisão' event (position should be 0)
+#   events$
+#   transfers %>%
+#   fun_b3_position() ->
+#   df_position
+#
+# # - edge cases -------------------------------------------------------
+# # transactions do not work for identifying daytrolha!
+# # must use dealings files for daytrolha
+# # remove single 'atualização' events? (single == with no follow-up events)
+# # list_b3_data$
+# #   transactions %>%
+# #   filter(
+# #     ticker == 'BIDI4'
+# #     ticker == 'INFH12'
+# #     ticker == 'INBR31'
+# #     ticker == 'INBR32'
+# #   )
+# # ticker == 'TIET4' #working
+# # ticker == 'AESB1' #working
+# # ticker == 'AESB3' #working
+# # ticker == 'TAEE11' #working
+# # ticker == 'TAEE3' #working
+# # ticker == 'WEGE3' #working
+# # ticker == 'MGLU3' #'atualização' event bug (position should be 0)
+# # ticker == 'SAPR3' #working
+# # ticker == 'SAPR4' #working
+# # ticker == 'BOVA11' #'atualização' event bug (position should be 0)
+# # ticker == 'GOLL4' #working
+# # ticker == 'AZUL4' #working
+# # ticker == 'INHF12' #'incorporação' event bug
+# # ticker == 'SOMA3' #'incorporação' price should not be 0
+# # ticker == 'HGTX3' #'incorporação' bug (position should be 0)
+# # ticker == 'SLCE3' #working
+# # ticker == 'TESA3' #this stock was converted into LAND3 (1:3) and position should be 0
+# # ticker == 'LAND3' #working
+# # ticker == 'EQTL1' #working
+# # ticker == 'EQTL3' #working
+# # ticker == 'EGIE3' #working
+# # ticker == 'PRIO3' #'atualização' event bug ('atualização' should not be counted as additional stocks, 'atualização' == lag(position))
+# # ticker == 'BIDI4' #split working but positions should be 0
+# # ticker == 'GSHP3' #working
+# # ticker == 'FHER3' #working
+# # ticker == 'INBR31' #edge case
+# # ticker == 'INBR32' #working
+# # ticker == 'SANB11' #edge case 'cisão' event (position should be 0)
