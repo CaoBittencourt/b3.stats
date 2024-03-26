@@ -72,7 +72,7 @@ fun_b3_mean_price <- function(
           length(dbl_price),
           length(dbl_cycle),
           length(dbl_position)
-        ))
+        )) #bug when nrow == 1
       )
   )
 
@@ -228,18 +228,18 @@ list(
   '/home/Cao/Storage/github/auto.tax/data/2023/events_2023.xlsx'
 ) -> list_events
 
-# # b3 financial position files
-# list(
-#   '/home/Cao/Storage/github/auto.tax/data/2020/position_2020.xlsx',
-#   '/home/Cao/Storage/github/auto.tax/data/2021/position_2021.xlsx',
-#   '/home/Cao/Storage/github/auto.tax/data/2022/position_2022.xlsx',
-#   '/home/Cao/Storage/github/auto.tax/data/2023/position_2023.xlsx'
-# ) -> list_position
+# events to remove
+list() -> list_events_remove
+
+# events to add
+list() -> list_events_add
 
 # - fun_b3_clean ----------------------------------------------------------
 fun_b3_clean(
-  list_transactions,
-  list_events
+  list_chr_path_transactions = list_transactions,
+  list_chr_path_events = list_events,
+  list_chr_path_events_remove =  list_events_remove,
+  list_chr_path_events_add = list_events_add
 ) -> list_b3_data
 
 # - fun_b3_position -------------------------------------------------------
