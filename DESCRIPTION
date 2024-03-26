@@ -1,7 +1,7 @@
 Package: b3.stats
 Type: Package
 Title: Tidy Financial Transactions Statistics
-Version: 1.0.5
+Version: 1.0.6
 Author: Cao Bittencourt
 Maintainer: Cao Bittencourt <caobittencourt@gmail.com>
 Description: Calculate stuff using financial transactions data from B3's platform.
