@@ -59,6 +59,12 @@ fun_b3_daytrolha <- function(df_transactions, df_position_day){
       ticker,
       mean_price
     ) %>%
+    group_by(
+      date,
+      ticker
+    ) %>%
+    slice(1) %>%
+    ungroup() %>%
     inner_join(
       df_daytrolha
       , by = c(
