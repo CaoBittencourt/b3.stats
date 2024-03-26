@@ -1,54 +1,95 @@
 # [FUNCTIONS] --------------------------------------------------------------
 # - Calculate dividends function ---------------------------------------------------------
-fun_b3_dividends <- function(df_dividends_events){
+fun_b3_dividends <- function(df_events_dividends){
 
-  # # arguments validation
-  # stopifnot(
-  #   "'df_dividends_events' must be a data frame with the 'df_dividends_events' subclass." =
-  #     all(
-  #       is.data.frame(df_dividends_events)
-  #       , any(class(df_dividends_events) == 'df_dividends_events')
-  #     )
-  # )
-
-  # must group by type of event!
+  # arguments validation
+  stopifnot(
+    "'df_events_dividends' must be a data frame with the 'df_events_dividends' subclass." =
+      all(
+        is.data.frame(df_events_dividends)
+        , any(class(df_events_dividends) == 'df_events_dividends')
+      )
+  )
 
   # calculate dividends
-  df_dividends_events %>%
+  df_events_dividends %>%
+    select(
+      -type,
+      -cycle
+    ) %>%
+    relocate(
+      date,
+      ticker,
+      stock,
+      event,
+      qtd,
+      price
+    ) %>%
     mutate(
-      dividends =
-        qtd * price
+      value = qtd * price
     ) -> df_dividends
 
-  rm(df_dividends_events)
+  rm(df_events_dividends)
 
   # aggregate dividends by month-year
   df_dividends %>%
     group_by(
       year = year(date),
       month = month(date),
-      ticker
+      ticker,
+      event
     ) %>%
     reframe(
-      dividends = sum(dividends)
-    ) -> df_dividends_month
+      value = sum(value)
+    ) %>%
+    group_by(
+      year,
+      month,
+      ticker
+    ) %>%
+    mutate(
+      total = sum(value)
+    ) %>%
+    ungroup() ->
+    df_dividends_month
 
   # aggregate dividends by year
   df_dividends %>%
     group_by(
       year = year(date),
-      ticker
+      ticker,
+      event
     ) %>%
     reframe(
-      dividends = sum(dividends)
-    ) -> df_dividends_year
+      value = sum(value)
+    ) %>%
+    group_by(
+      year,
+      ticker
+    ) %>%
+    mutate(
+      total = sum(value)
+    ) %>%
+    ungroup() ->
+    df_dividends_year
 
   # aggregate dividends by period
   df_dividends %>%
-    group_by(ticker) %>%
+    group_by(
+      ticker,
+      event
+      ) %>%
     reframe(
-      dividends = sum(dividends)
-    ) -> df_dividends_period
+      value = sum(value)
+    ) %>%
+    group_by(
+      ticker
+    ) %>%
+    mutate(
+      total = sum(value)
+    ) %>%
+    ungroup() ->
+    df_dividends_period
 
   # add data frame subclasses
   new_data_frame(
@@ -89,7 +130,7 @@ fun_b3_dividends <- function(df_dividends_events){
     'dividends_month' = df_dividends_month,
     'dividends_year' = df_dividends_year,
     'dividends_period' = df_dividends_period,
-    'dividends_total' = sum(df_dividends_period$dividends)
+    'dividends_total' = sum(df_dividends_period$value)
   ))
 
   # output
