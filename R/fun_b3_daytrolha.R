@@ -9,7 +9,9 @@ chr_pkg <- c(
 
 # Git packages
 chr_git <- c(
-  'CaoBittencourt' = 'b3.data' #Tidy financial transactions (temp)
+  'CaoBittencourt' = 'b3.data', #Tidy financial transactions (temp)
+  'CaoBittencourt' = 'b3.stats' #Tidy financial statistics (temp)
+
 )
 
 # Activate / install CRAN packages
