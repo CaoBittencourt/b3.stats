@@ -124,6 +124,39 @@ fun_b3_daytrolha <- function(df_transactions, df_position_day){
       trolha = sum(trolha)
     ) -> df_daytrolha_period
 
+  # add data frame subclasses
+  new_data_frame(
+    df_daytrolha
+    , class = c(
+      class(df_daytrolha)
+      , 'df_daytrolha'
+    )
+  ) -> df_daytrolha
+
+  new_data_frame(
+    df_daytrolha_month
+    , class = c(
+      class(df_daytrolha_month)
+      , 'df_daytrolha_month'
+    )
+  ) -> df_daytrolha_month
+
+  new_data_frame(
+    df_daytrolha_year
+    , class = c(
+      class(df_daytrolha_year)
+      , 'df_daytrolha_year'
+    )
+  ) -> df_daytrolha_year
+
+  new_data_frame(
+    df_daytrolha_period
+    , class = c(
+      class(df_daytrolha_period)
+      , 'df_daytrolha_period'
+    )
+  ) -> df_daytrolha_period
+
   # output
   return(list(
     'daytrolha' = df_daytrolha,
