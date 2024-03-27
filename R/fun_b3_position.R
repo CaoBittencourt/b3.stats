@@ -143,6 +143,17 @@ fun_b3_position <- function(df_events_transfers){
     ungroup() ->
     df_position
 
+  # drop useless columns
+  df_position %>%
+    select(
+      date,
+      ticker,
+      stock,
+      position,
+      mean_price,
+      value
+    ) -> df_position
+
   # daily position
   df_position %>%
     select(
