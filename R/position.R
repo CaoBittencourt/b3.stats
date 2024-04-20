@@ -57,6 +57,17 @@ fun_b3_position <- function(df_events_transfers){
       value
     ) -> df_position
 
+  # current position
+  df_position %>%
+    group_by(
+      ticker
+    ) %>%
+    slice(n()) %>%
+    ungroup() %>%
+    filter(
+      position > 0
+    ) -> df_position_now
+
   # daily position
   df_position %>%
     select(
@@ -111,6 +122,14 @@ fun_b3_position <- function(df_events_transfers){
   ) -> df_position
 
   new_data_frame(
+    df_position_now
+    , class = c(
+      class(df_position_now)
+      , 'df_position_now'
+    )
+  ) -> df_position_now
+
+  new_data_frame(
     df_position_day
     , class = c(
       class(df_position_day)
@@ -121,6 +140,7 @@ fun_b3_position <- function(df_events_transfers){
   # output
   return(list(
     'position' = df_position,
+    'position_now' = df_position_now,
     'position_day' = df_position_day
   ))
 
