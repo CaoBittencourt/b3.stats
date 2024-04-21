@@ -143,3 +143,4 @@ fun_b3_daytrolha <- function(df_transactions, df_position_day){
   ))
 
 }
+

@@ -137,3 +137,4 @@ fun_b3_dividends <- function(df_events_dividends){
   return(df_dividends_agg)
 
 }
+

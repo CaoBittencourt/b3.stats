@@ -22,3 +22,4 @@ fun_b3_is_daytrolha <- function(df_transactions){
   return(df_transactions)
 
 }
+

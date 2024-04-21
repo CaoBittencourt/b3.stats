@@ -95,3 +95,4 @@ fun_b3_mean_price <- function(
   return(dbl_mean_price)
 
 }
+

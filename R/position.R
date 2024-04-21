@@ -145,3 +145,4 @@ fun_b3_position <- function(df_events_transfers){
   ))
 
 }
+
