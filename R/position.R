@@ -49,53 +49,20 @@ fun_b3_position <- function(df_events_transfers){
     ungroup() ->
     df_position
 
-  # set position = 0 for converted (old) tickers
+  # set position = 0 for obsolete tickers
   df_position %>%
-    filter(
-      ticker_convert ==
-        'ticker'
-    ) %>%
-    mutate(
-      date = convert
-    ) %>%
-    select(
-      date,
-      ticker,
-      mean_price
-    ) %>%
-    group_by(
-      ticker
-    ) %>%
-    slice(n()) %>%
-    ungroup() %>%
-    mutate(
-      position = 0
-      , mean_price =
-        mean_price
-      , value = 0
-      , active = F
-    ) %>%
-    bind_rows(
-      df_position
-    ) %>%
-    arrange(
-      date
-    ) %>%
-    fill(
-      c(
-        ticker_convert,
-        cycle,
-        stock,
-        ticker_type
-      )
-    ) -> df_position
+    mutate(across(
+      .cols = c(position, value)
+      ,.fns = ~ .x * active
+    )) -> df_position
 
   # drop auxiliary rows for converted (new) tickers
   df_position %>%
     filter(!(
       cycle == 0
-      & ticker_convert ==
-        'new_ticker'
+      & !is.na(convert)
+      # & ticker_convert ==
+      #   'new_ticker'
     )) -> df_position
 
   # drop useless columns
