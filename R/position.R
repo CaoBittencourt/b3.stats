@@ -2,14 +2,13 @@
 # [ ] INBR31 --------------------------------------------------------------
 # [ ] is position_day necessary? --------------------------------------------------------------
 # - Position function ---------------------------------------------------------
-fun_b3_position <- function(df_events_transfers){
-
+fun_b3_position <- function(df_events_transfers) {
   # arguments validation
   stopifnot(
     "'df_events_transfers' must be a data frame with the 'df_events_transfers' subclass." =
       all(
-        is.data.frame(df_events_transfers)
-        , any(class(df_events_transfers) == 'df_events_transfers')
+        is.data.frame(df_events_transfers),
+        any(class(df_events_transfers) == "df_events_transfers")
       )
   )
 
@@ -21,12 +20,18 @@ fun_b3_position <- function(df_events_transfers){
     ) %>%
     mutate(
       position =
-        cumsum(qtd)
+        qtd |>
+          is.na() |>
+          ifelse(0, qtd) |>
+          cumsum()
+      # qtd |>
+      #   is.na() |>
+      #   ifelse(0, qtd) |>
+      #   cumsum() *
+      #   active
     ) %>%
     ungroup() ->
-    df_position
-
-  rm(df_events_transfers)
+  df_position
 
   # mean price and value
   df_position %>%
@@ -41,26 +46,29 @@ fun_b3_position <- function(df_events_transfers){
           dbl_cycle = cycle,
           dbl_position = position,
           dbl_prop = prop
-        )
-      , value =
+        ) *
+          active,
+      value =
         mean_price *
-        position
-    ) %>%
+          position *
+          active
+    ) |>
     ungroup() ->
-    df_position
+  df_position
 
   # set position = 0 for obsolete tickers
   df_position %>%
     mutate(across(
-      .cols = c(position, value)
-      ,.fns = ~ .x * active
+      .cols = c(position, value),
+      .fns = ~ .x * active
+      # need to set active = F for all t >= obsolete <date>
     )) -> df_position
 
   # drop auxiliary rows for converted (new) tickers
   df_position %>%
     filter(!(
-      cycle == 0
-      & !is.na(convert)
+      cycle == 0 &
+        !is.na(convert)
       # & ticker_convert ==
       #   'new_ticker'
     )) -> df_position
@@ -101,19 +109,19 @@ fun_b3_position <- function(df_events_transfers){
       ticker
     ) %>%
     mutate(
-      .after = 1
-      , reps =
+      .after = 1,
+      reps =
         as.numeric(
           difftime(
             lead(date),
             date
           )
-        )
-      , reps =
+        ),
+      reps =
         if_else(
-          !is.na(reps)
-          , reps
-          , 0
+          !is.na(reps),
+          reps,
+          0
         )
     ) %>%
     group_by(
@@ -129,40 +137,39 @@ fun_b3_position <- function(df_events_transfers){
       -reps
     ) %>%
     ungroup() ->
-    df_position_day
+  df_position_day
 
   # add subclasses
   new_data_frame(
-    df_position
-    , class = c(
-      class(df_position)
-      , 'df_position'
+    df_position,
+    class = c(
+      class(df_position),
+      "df_position"
     )
   ) -> df_position
 
   new_data_frame(
-    df_position_now
-    , class = c(
-      class(df_position_now)
-      , 'df_position_now'
+    df_position_now,
+    class = c(
+      class(df_position_now),
+      "df_position_now"
     )
   ) -> df_position_now
 
   new_data_frame(
-    df_position_day
-    , class = c(
-      class(df_position_day)
-      , 'df_position_day'
+    df_position_day,
+    class = c(
+      class(df_position_day),
+      "df_position_day"
     )
   ) -> df_position_day
 
   # output
   return(list(
-    'position' = df_position,
-    'position_now' = df_position_now,
-    'position_day' = df_position_day
+    "position" = df_position,
+    "position_now" = df_position_now,
+    "position_day" = df_position_day
   ))
-
 }
 
 

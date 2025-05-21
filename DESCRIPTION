@@ -5,7 +5,7 @@ Version: 1.6.2
 Author: Cao Bittencourt
 Maintainer: Cao Bittencourt <caobittencourt@gmail.com>
 Description: Calculate stuff using financial transactions data from B3's platform.
-Depends: dplyr, tidyr, lubridate, vctrs, rlang
+Depends: dplyr, tidyr, lubridate, vctrs, rlang, stats
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
