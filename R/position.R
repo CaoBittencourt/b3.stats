@@ -24,11 +24,6 @@ fun_b3_position <- function(df_events_transfers) {
           is.na() |>
           ifelse(0, qtd) |>
           cumsum()
-      # qtd |>
-      #   is.na() |>
-      #   ifelse(0, qtd) |>
-      #   cumsum() *
-      #   active
     ) %>%
     ungroup() ->
   df_position
@@ -69,8 +64,6 @@ fun_b3_position <- function(df_events_transfers) {
     filter(!(
       cycle == 0 &
         !is.na(convert)
-      # & ticker_convert ==
-      #   'new_ticker'
     )) -> df_position
 
   # drop useless columns
