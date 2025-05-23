@@ -85,7 +85,7 @@ fun_b3_position <- function(df_events_transfers) {
     slice(n()) %>%
     ungroup() %>%
     filter(
-      position > 0
+      position > 0 | year(date) == max(year(date))
     ) -> df_position_now
 
   # daily position
